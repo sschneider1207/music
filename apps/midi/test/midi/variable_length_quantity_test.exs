@@ -2,24 +2,24 @@ defmodule MIDI.VariableLengthQuantityTest do
   use ExUnit.Case
   alias MIDI.VariableLengthQuantity
 
-  describe "decode" do
+  describe "parse" do
     test "empty binary" do
-      {n, ""} = VariableLengthQuantity.decode(<<0x00>>)
+      {n, ""} = VariableLengthQuantity.parse(<<0x00>>)
       assert n === 0x00
     end
 
     test "single octet, non-zero" do
-      {n, ""} = VariableLengthQuantity.decode(<<0x7F>>)
+      {n, ""} = VariableLengthQuantity.parse(<<0x7F>>)
       assert n === 0x0000007F
     end
 
     test "multile octets" do
-      {n, ""} = VariableLengthQuantity.decode(<<0xFF, 0x7F>>)
+      {n, ""} = VariableLengthQuantity.parse(<<0xFF, 0x7F>>)
       assert n === 0x00003FFF
     end
 
     test "max number" do
-      {n, ""} = VariableLengthQuantity.decode(<<0xFF, 0xFF, 0xFF, 0x7F>>)
+      {n, ""} = VariableLengthQuantity.parse(<<0xFF, 0xFF, 0xFF, 0x7F>>)
       assert n === 0x0FFFFFFF
     end
   end
@@ -49,17 +49,17 @@ defmodule MIDI.VariableLengthQuantityTest do
   test "santity checks" do
     a = 0x00
     a_ = VariableLengthQuantity.encode(a)
-    {a__, ""} = VariableLengthQuantity.decode(a_)
+    {a__, ""} = VariableLengthQuantity.parse(a_)
     assert a === a__
 
     b = 0x001FFFFF
     b_ = VariableLengthQuantity.encode(b)
-    {b__, ""} = VariableLengthQuantity.decode(b_)
+    {b__, ""} = VariableLengthQuantity.parse(b_)
     assert b === b__
 
     c = 0x0FFFFFFF
     c_ = VariableLengthQuantity.encode(c)
-    {c__, ""} = VariableLengthQuantity.decode(c_)
+    {c__, ""} = VariableLengthQuantity.parse(c_)
     assert c === c__
   end
 end
