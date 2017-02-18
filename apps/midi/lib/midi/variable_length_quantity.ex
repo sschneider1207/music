@@ -3,7 +3,7 @@ defmodule MIDI.VariableLengthQuantity do
   @doc """
   Parses a variable length quantity integer off the head of a binary.
   """
-  @spec parse(binary) :: {integer, binary}
+  @spec parse(binary) :: {integer, binary} | :error
   def parse(bin) do
     do_parse(bin)
   end
@@ -17,6 +17,9 @@ defmodule MIDI.VariableLengthQuantity do
   end
   defp do_parse(<<1 :: 1, n :: 7, rest :: binary>>, acc) do
     do_parse(rest, [n|acc])
+  end
+  defp do_parse(_, _) do
+    :error
   end
 
   defp list_to_quantity(list) do
