@@ -36,6 +36,24 @@ defmodule MIDI.VariableLengthQuantity do
   """
   @spec encode(integer) :: binary
   def encode(int) do
+    do_encode(int)
+  end
 
+  use Bitwise, only_operators: true
+
+  defp do_encode(int, acc \\ [])
+  defp do_encode(0, []) do
+    <<0x00>>
+  end
+  defp do_encode(0, acc) do
+    Enum.reduce(acc, <<>>, &Kernel.<>(&2, &1))
+  end
+  defp do_encode(int, []) do
+    n = int &&& 127
+    do_encode(int >>> 7, [<<0 :: 1, n :: 7>>])
+  end
+  defp do_encode(int, acc) do
+    n = int &&& 127
+    do_encode(int >>> 7, [<<1 :: 1, n :: 7>>|acc])
   end
 end
