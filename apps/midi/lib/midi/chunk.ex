@@ -25,16 +25,16 @@ defmodule MIDI.Chunk do
     {header, rest}
   end
   def parse_chunk(<<@track,
-                    length :: 16,
+                    length :: 32,
                     bin :: binary>>)
   do
-    <<track :: size(length), rest :: binary>> = bin
+    <<track :: size(length)-binary, rest :: binary>> = bin
     track = struct(Track, events: parse_track(track))
     {track, rest}
   end
 
   defp parse_track(bin) do
-    :ok
+    bin
   end
 
   defp format(0), do: :single
