@@ -1,4 +1,9 @@
 defmodule MIDI.VariableLengthQuantity do
+  @moduledoc """
+  Variable-length quantity is an encoding that uses an arbitary number of
+  octets to represent an arbitrarily large integer.  It was designed for use
+  in MIDI files in order to save space with regards to 32-bit integers.
+  """
 
   @doc """
   Parses a variable length quantity integer off the head of a binary.

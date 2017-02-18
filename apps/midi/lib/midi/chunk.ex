@@ -1,7 +1,8 @@
 defmodule MIDI.Chunk do
   @header "MThd"
   @track "MTrk"
-
+  alias MIDI.Event
+  
   defmodule Header do
     defstruct [:format, :num_tracks, :pulses_per_quarter_note]
   end
@@ -10,7 +11,23 @@ defmodule MIDI.Chunk do
     defstruct [:events]
   end
 
-  def parse_chunk(<<@header,
+  @type chunk :: header | track
+  @type header :: %Header{}
+  @type track :: %Track{}
+
+  @doc """
+  Parses a binary midi file into a list of chunks.
+  """
+  @spec parse(binary) :: [chunk]
+  def parse(bin) do
+    Stream.unfold(bin, fn
+      "" -> nil
+      bytes ->  parse_chunk(bytes)
+    end)
+    |> Enum.to_list()
+  end
+
+  defp parse_chunk(<<@header,
                      6        :: 32,
                      format   :: 16,
                      ntrks    :: 16,
@@ -24,17 +41,13 @@ defmodule MIDI.Chunk do
     ])
     {header, rest}
   end
-  def parse_chunk(<<@track,
+  defp parse_chunk(<<@track,
                     length :: 32,
                     bin :: binary>>)
   do
-    <<track :: size(length)-binary, rest :: binary>> = bin
-    track = struct(Track, events: parse_track(track))
+    <<events :: size(length)-binary, rest :: binary>> = bin
+    track = struct(Track, events: Event.parse(events))
     {track, rest}
-  end
-
-  defp parse_track(bin) do
-    bin
   end
 
   defp format(0), do: :single

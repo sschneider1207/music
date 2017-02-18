@@ -6,19 +6,20 @@ defmodule MIDI.ChunkTest do
 
   describe "ocarina of time market theme" do
     # http://phpmidiparser.com/reports/1815/
-    
+
     setup do
       bytes = File.read!(@path)
       {:ok, [bytes: bytes]}
     end
 
-    test "header parsed correctly", %{bytes: bytes} do
-      {header, _} = Chunk.parse_chunk(bytes)
+    test "parsed correctly", %{bytes: bytes} do
+      [header|tracks] = Chunk.parse(bytes)
 
       assert header.__struct__ === Header
       assert header.format === :multi_simultaneous
       assert header.num_tracks === 8
       assert header.pulses_per_quarter_note === 480
+      assert length(tracks) === 8
     end
 
   end
