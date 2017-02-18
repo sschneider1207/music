@@ -18,7 +18,7 @@ defmodule MIDI.VariableLengthQuantityTest do
       assert n === 0x00003FFF
     end
 
-    test "big number" do
+    test "max 32-bit number" do
       {n, ""} = VariableLengthQuantity.parse(<<0xFF, 0xFF, 0xFF, 0x7F>>)
       assert n === 0x0FFFFFFF
     end
@@ -40,7 +40,7 @@ defmodule MIDI.VariableLengthQuantityTest do
       assert n === <<0xC0, 0x80, 0x00>>
     end
 
-    test "big number" do
+    test "max 32-bit number" do
       n = VariableLengthQuantity.encode(0x0FFFFFFF)
       assert n === <<0xFF, 0xFF, 0xFF, 0x7F>>
     end
