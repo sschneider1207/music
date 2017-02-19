@@ -2,9 +2,9 @@ defmodule MIDI.Chunk do
   @header "MThd"
   @track "MTrk"
   alias MIDI.Event
-  
+
   defmodule Header do
-    defstruct [:format, :num_tracks, :pulses_per_quarter_note]
+    defstruct [:format, :num_tracks, :division]
   end
 
   defmodule Track do
@@ -31,13 +31,13 @@ defmodule MIDI.Chunk do
                      6        :: 32,
                      format   :: 16,
                      ntrks    :: 16,
-                     division :: 16,
+                     division :: 16-unit(1)-binary,
                      rest     :: binary>>)
   do
     header = struct(Header, [
       format: format(format),
       num_tracks: (if ntrks === 0, do: nil, else: ntrks),
-      pulses_per_quarter_note: division
+      division: division(division)
     ])
     {header, rest}
   end
@@ -54,4 +54,17 @@ defmodule MIDI.Chunk do
   defp format(1), do: :multi_simultaneous
   defp format(2), do: :multi_sequentially
   defp format(_), do: :unknown
+
+  defp division(<<0 :: 1, ppq :: 15>>) do
+    {:pulses_per_quarter_note, ppq}
+  end
+  defp division(<<1 :: 1, format :: 7, tpf :: 8>>) do
+    smpte = case format do
+      -24 ->24.00
+      -25 -> 25.00
+      -29 -> 29.97
+      -30 -> 30.00
+    end
+    [smpte: smpte, ticks_per_frame: tpf]
+  end
 end

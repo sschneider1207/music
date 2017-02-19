@@ -1,5 +1,6 @@
 defmodule MIDI.Event do
   alias MIDI.VariableLengthQuantity
+  alias Midi.Event.{MIDIEvent, SysExEvent, MetaEvent}
 
   @doc """
   Parses a binary block into a list of midi events.
@@ -15,6 +16,13 @@ defmodule MIDI.Event do
 
   defp parse_event(bin) do
     {delta_time, rest} = VariableLengthQuantity.parse(bin)
-    {delta_time, ""}
+    {event, rest} = case rest do
+      <<0xFF :: 8, _ :: binary>> ->
+        MetaEvent.parse(rest)
+      <<byte :: 8, _ :: binary>> when byte in [0xF0, 0xF7] ->
+        SysExEvent.parse(rest)
+      _ ->
+        MIDIEvent.parse(rest)
+    end
   end
 end

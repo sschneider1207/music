@@ -18,7 +18,7 @@ defmodule MIDI.ChunkTest do
       assert header.__struct__ === Header
       assert header.format === :multi_simultaneous
       assert header.num_tracks === 8
-      assert header.pulses_per_quarter_note === 480
+      assert header.division === {:pulses_per_quarter_note, 480}
       assert length(tracks) === 8
     end
 
